@@ -17,6 +17,10 @@ public class Categoria implements Serializable {
     public Categoria() {
     }
 
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
     public int getId() {
         return id;
     }

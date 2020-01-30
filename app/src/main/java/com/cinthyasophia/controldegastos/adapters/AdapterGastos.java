@@ -10,13 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cinthyasophia.controldegastos.Gasto;
 import com.cinthyasophia.controldegastos.R;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-import java.util.ArrayList;
 
-public class AdapterGastos extends RecyclerView.Adapter<AdapterGastos.GastosViewHolder>  {
-    private ArrayList<Gasto> datos;
-    public AdapterGastos(ArrayList<Gasto> datos) {
-        this.datos = datos;
+public class AdapterGastos extends FirestoreRecyclerAdapter<Gasto, AdapterGastos.GastosViewHolder> {
+
+    public AdapterGastos(@NonNull FirestoreRecyclerOptions<Gasto> options) {
+        super(options);
+
     }
 
     @NonNull
@@ -27,26 +29,25 @@ public class AdapterGastos extends RecyclerView.Adapter<AdapterGastos.GastosView
     }
 
     @Override
-    public void onBindViewHolder(@NonNull GastosViewHolder holder, int position) {
-        Gasto gasto = datos.get(position);
-        holder.bindGasto(gasto);
+    protected void onBindViewHolder(@NonNull GastosViewHolder gastosViewHolder, int i, @NonNull Gasto gasto) {
+        gastosViewHolder.tvIdGasto.setText(String.valueOf(gasto.getId()));
+        gastosViewHolder.tvDescripcionGasto.setText(gasto.getDescripcion());
+        gastosViewHolder.tvFechaGasto.setText(gasto.getFecha());
+        gastosViewHolder.tvTotalGasto.setText(String.valueOf(gasto.getTotal()));
     }
 
     @Override
-    public int getItemCount() {
-        return datos.size();
+    public void onDataChanged() {
+        super.onDataChanged();
     }
 
-    public void swap(ArrayList<Gasto> datos) {
-        this.datos = datos;
-        notifyDataSetChanged();
-    }
 
     public class GastosViewHolder extends RecyclerView.ViewHolder {
         private TextView tvIdGasto;
         private TextView tvDescripcionGasto;
         private TextView tvFechaGasto;
         private TextView tvTotalGasto;
+
         public GastosViewHolder(@NonNull View itemView) {
             super(itemView);
             tvIdGasto = itemView.findViewById(R.id.tvIdGasto);
@@ -55,12 +56,5 @@ public class AdapterGastos extends RecyclerView.Adapter<AdapterGastos.GastosView
             tvTotalGasto = itemView.findViewById(R.id.tvTotalGasto);
         }
 
-        public void bindGasto(Gasto gasto) {
-
-            tvIdGasto.setText(String.valueOf(gasto.getId()));
-            tvDescripcionGasto.setText(gasto.getDescripcion());
-            tvFechaGasto.setText(gasto.getFecha());
-            tvTotalGasto.setText(String.valueOf(gasto.getTotal()));
-        }
     }
 }

@@ -11,19 +11,19 @@ public class Gasto implements Serializable {
     private Categoria categoria;
     private GregorianCalendar fecha;
     private double total;
+    private String usuario;
     private Lib lib;
 
     public Gasto() {
     }
 
-
-    public Gasto(int id, String descripcion, Categoria categoria, String fecha, double total) {
-        this.lib = new Lib();
+    public Gasto(int id, String descripcion, Categoria categoria, GregorianCalendar fecha, double total, String usuario) {
         this.id = id;
         this.descripcion = descripcion;
-        this.fecha = lib.getFecha(fecha);
         this.categoria = categoria;
+        this.fecha = fecha;
         this.total = total;
+        this.usuario = usuario;
     }
 
     public int getId() {
@@ -44,6 +44,10 @@ public class Gasto implements Serializable {
 
     public String getFecha() {
         return lib.getFecha(fecha);
+    }
+
+    public String getUsuario() {
+        return usuario;
     }
 
 

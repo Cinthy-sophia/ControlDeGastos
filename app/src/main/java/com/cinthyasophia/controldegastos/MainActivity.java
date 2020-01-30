@@ -17,37 +17,59 @@ import android.widget.Toast;
 import com.cinthyasophia.controldegastos.Util.Lib;
 import com.cinthyasophia.controldegastos.fragments.FragmentNuevoGasto;
 import com.cinthyasophia.controldegastos.fragments.FragmentPrincipal;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity{
-    private static final String DB_NAME = "controlgastos";
-    private static final int DB_VERSION = 1;
-    private ControlGastosDB databaseGestor;
-    private SQLiteDatabase database;
+    private static final int SIGN_IN_REQUEST_CODE = 1001;
+    private FirebaseFirestore db;
+    private CollectionReference coleccion;
     private ArrayList<Categoria> categorias;
     private ArrayList<Gasto> gastos;
+    private String usuarioN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        databaseGestor = new ControlGastosDB(this,DB_NAME,null,DB_VERSION);
-        database = databaseGestor.getOpenDataBase();
+        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+            // Iniciamos Activity para Login/Registro
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .build(),
+                    SIGN_IN_REQUEST_CODE
+            );
+        } else {
+            // El usuario ya se ha autenticado.
+            Toast.makeText(this,
+                    "Bienvenido " + FirebaseAuth.getInstance()
+                            .getCurrentUser()
+                            .getDisplayName(),
+                    Toast.LENGTH_LONG)
+                    .show();
 
-        if (database == null){
-            Toast.makeText(this,"HA FALLADO LA CONEXION ALAVERGA",Toast.LENGTH_LONG).show();
-        }else {
-            Toast.makeText(this,"HA SIDO CORRECTA LA CONEXION OLOVERGA",Toast.LENGTH_LONG).show();
-            categorias = obtenerCategorias(database);
-            gastos = obtenerGastos(database);
-            database.close();
         }
+
+        db = FirebaseFirestore.getInstance();
+        usuarioN = FirebaseAuth.getInstance()
+                .getCurrentUser()
+                .getDisplayName();
+
+        categorias = new ArrayList<>();
+        gastos = new ArrayList<>();
         Bundle b = new Bundle();
         b.putSerializable("categorias",categorias);
         b.putSerializable("gastos", gastos);
+
 
         Fragment fPrincipal = new FragmentPrincipal();
         fPrincipal.setArguments(b);
@@ -83,7 +105,6 @@ public class MainActivity extends AppCompatActivity{
                 Bundle b = new Bundle();
                 b.putSerializable("categorias",categorias);
                 b.putSerializable("gastos",gastos);
-                b.putSerializable("DATABASE",databaseGestor);
                 fNuevoGasto.setArguments(b);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_principal,fNuevoGasto).addToBackStack(null).commit();
 
@@ -93,56 +114,11 @@ public class MainActivity extends AppCompatActivity{
         }
 
     }
-    public ArrayList<Gasto> obtenerGastos(SQLiteDatabase database){
-        Lib lib = new Lib();
-        ArrayList<Gasto> gastos = new ArrayList<>();
-        Gasto gas;
-        if (database!=null){
-            String[] campos = new String[]{"Id","Descripcion","Categoria_Id","Fecha","Total"};
-            int id;
-            String descripcion;
-            Categoria categoria;
-            GregorianCalendar fecha;
-            double total;
-            Cursor c = database.query("Gasto",campos,null,null,null,null,null);
-            if (c.moveToFirst()){
-                do {
-                    id = c.getInt(0);
-                    descripcion = c.getString(1);
-                    categoria = categorias.get(c.getInt(2)-1);
-                    if (c.getString(3)==null){
-                        fecha = new GregorianCalendar();
-                    }else{
-                        fecha = lib.getFecha(c.getString(3));
-                    }
-                    total = c.getDouble(4);
-                    gas = new Gasto(id,descripcion,categoria,lib.getFecha(fecha),total);
-                    gastos.add(gas);
-                }while (c.moveToNext());
-            }
-        }
-        return gastos;
-    }
-    public ArrayList<Categoria> obtenerCategorias(SQLiteDatabase database){
-        ArrayList<Categoria> categorias = new ArrayList<>();
-        Categoria cat;
-        if (database!=null){
-            String[] campos = new String[]{"Id","Nombre","Logo"};
-            Cursor c = database.query("Categoria",campos,null,null,null,null,null);
-            if(c.moveToFirst()) {
-                do {
-                    int id = c.getInt(0);
-                    String nombre = c.getString(1);
-                    String foto = c.getString(2);
-                    if (foto == null){
-                        foto = "drawable/c_"+nombre.toLowerCase();
-                    }
-                    cat= new Categoria(id,nombre,foto);
-                    categorias.add(cat);
-                } while(c.moveToNext());
-            }
-        }
-        return categorias;
+
+    public ArrayList<Lista> obtenerLista(FirebaseFirestore database){
+        ArrayList<Lista> listas = new ArrayList<>();
+
+        return listas;
     }
 
 }

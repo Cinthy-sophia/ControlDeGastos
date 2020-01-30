@@ -1,12 +1,9 @@
 package com.cinthyasophia.controldegastos.fragments;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,25 +12,32 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cinthyasophia.controldegastos.Categoria;
-import com.cinthyasophia.controldegastos.ControlGastosDB;
 import com.cinthyasophia.controldegastos.Gasto;
+import com.cinthyasophia.controldegastos.Lista;
 import com.cinthyasophia.controldegastos.R;
-import com.cinthyasophia.controldegastos.adapters.AdapterCategoria;
+import com.cinthyasophia.controldegastos.adapters.AdapterListas;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 public class FragmentPrincipal extends Fragment {
-    private ArrayList<Categoria> categorias;
+    private FirebaseFirestore database;
+    private ArrayList<Lista> listas;
     private ArrayList<Gasto> gastos;
-    private RecyclerView rvCategorias;
-    private AdapterCategoria adapterCategoria;
+    private String usuario;
+    private RecyclerView rvListas;
+    private AdapterListas adapterListas;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         getActivity().setTitle("");
-        categorias = (ArrayList<Categoria>) getArguments().getSerializable("categorias");
-        gastos = (ArrayList<Gasto>) getArguments().getSerializable("gastos");
+        usuario = getArguments().getString("usuario");
 
         return inflater.inflate(R.layout.fragment_principal,container,false);
     }
@@ -41,20 +45,26 @@ public class FragmentPrincipal extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        rvCategorias = getView().findViewById(R.id.rvCategorias);
+        rvListas = getView().findViewById(R.id.rvListas);
+        CollectionReference coleccion = database.collection("listas");
 
-        adapterCategoria = new AdapterCategoria(categorias,getContext());
-        rvCategorias.setAdapter(adapterCategoria);
-        rvCategorias.setLayoutManager( new GridLayoutManager(getContext(),3));
+        final Query query = coleccion.orderBy("id", Query.Direction.ASCENDING);
+        FirestoreRecyclerOptions<Lista> options = new FirestoreRecyclerOptions.Builder<Lista>()
+                .setQuery(query,Lista.class)
+                .build();
 
-        adapterCategoria.setOnClickListener(new View.OnClickListener() {
+        adapterListas = new AdapterListas(options);
+        rvListas.setAdapter(adapterListas);
+        rvListas.setLayoutManager( new GridLayoutManager(getContext(),3));
+
+        adapterListas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle b = new Bundle();
-                String nombre = categorias.get(rvCategorias.getChildAdapterPosition(v)).getNombre().toUpperCase();
+                String nombre = listas.get(rvListas.getChildAdapterPosition(v)).getNombre().toUpperCase();
+
                 Fragment fGastos = new FragmentGastos();
-                b.putSerializable("gastos",gastos);
-                b.putSerializable("categorias",categorias);
+                b.putString("usuario",usuario);
 
                 switch (nombre){
                     case "HOGAR":
@@ -90,6 +100,7 @@ public class FragmentPrincipal extends Fragment {
                     default:
                         break;
                 }
+                getActivity().setTitle(nombre);
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_principal,fGastos).addToBackStack("fragment_principal").commit();
 
             }
@@ -97,26 +108,5 @@ public class FragmentPrincipal extends Fragment {
 
 
     }
-    /*public ArrayList<Categoria> obtenerCategorias(SQLiteDatabase database){
-        ArrayList<Categoria> categorias = new ArrayList<>();
-        Categoria cat;
-        if (database!=null){
-            String[] campos = new String[]{"Id","Nombre","Logo"};
-            Cursor c = database.query("Categoria",campos,null,null,null,null,null);
-            if(c.moveToFirst()) {
-                do {
-                    int id = c.getInt(0);
-                    String nombre = c.getString(1);
-                    String foto = c.getString(2);
-                    if (foto == null){
-                        foto = "drawable/c_"+nombre.toLowerCase();
-                    }
-                    cat= new Categoria(id,nombre,foto);
-                    categorias.add(cat);
-                } while(c.moveToNext());
-            }
-        }
-        return categorias;
-    }*/
 
 }

@@ -1,7 +1,6 @@
 package com.cinthyasophia.controldegastos.fragments;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,20 +20,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cinthyasophia.controldegastos.Categoria;
-import com.cinthyasophia.controldegastos.ControlGastosDB;
 import com.cinthyasophia.controldegastos.Gasto;
 import com.cinthyasophia.controldegastos.R;
 import com.cinthyasophia.controldegastos.Util.Lib;
+import com.cinthyasophia.controldegastos.adapters.AdapterCategoria;
 import com.cinthyasophia.controldegastos.adapters.AdapterGastos;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 public class FragmentNuevoGasto extends Fragment {
-    private ControlGastosDB databaseG;
     private ArrayList<Categoria> categorias;
     private ArrayList<Gasto> gastos;
-    private SQLiteDatabase database;
     private Lib lib;
     private RecyclerView rvGastosCat;
     private EditText etCategoria;
@@ -56,10 +52,10 @@ public class FragmentNuevoGasto extends Fragment {
         Bundle b = getArguments();
 
         if(b!=null){
-            databaseG = (ControlGastosDB) b.getSerializable("DATABASE");
+            /*databaseG = (ControlGastosDB) b.getSerializable("DATABASE");*/
             gastos = (ArrayList<Gasto>) b.getSerializable("gastos");
             categorias = (ArrayList<Categoria>) b.getSerializable("categorias");
-            database = databaseG.getOpenDataBase();
+            /*database = databaseG.getOpenDataBase();*/
         }
         return inflater.inflate(R.layout.fragment_nuevo_gasto,container,false);
     }
@@ -69,14 +65,12 @@ public class FragmentNuevoGasto extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ArrayList<Gasto> gas;
-        AdapterGastos adapterGastos;
+        AdapterGastos adapterRv;
         etDescripcion = getView().findViewById(R.id.etDescripcion);
-        etCategoria = getView().findViewById(R.id.etCategoria);
         etFecha = getView().findViewById(R.id.eTFecha);
         etCantidad = getView().findViewById(R.id.etCantidad);
         rvGastosCat = getView().findViewById(R.id.rvGastosCat);
         bGuardar = getView().findViewById(R.id.bGuardar);
-        bBuscar = getView().findViewById(R.id.bBuscar);
 
         bBuscar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,7 +87,7 @@ public class FragmentNuevoGasto extends Fragment {
         });
 
         gas = ordenarGastos(gastos,categoria);
-        adapterGastos = new AdapterGastos(gas);
+        adapterRv = new AdapterCategoria();
 
         rvGastosCat.setAdapter(adapterGastos);
         rvGastosCat.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL,false));
@@ -117,7 +111,7 @@ public class FragmentNuevoGasto extends Fragment {
                     }
                 }
 
-                if (database == null) {
+               /* if (database == null) {
                     Toast.makeText(getContext(), "HA FALLADO LA CONEXION ALAVERGA", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), "HA SIDO CORRECTA LA CONEXION OLOVERGA", Toast.LENGTH_LONG).show();
@@ -128,7 +122,7 @@ public class FragmentNuevoGasto extends Fragment {
                     nuevoGasto.put("Total",total);
                     database.insert("Gasto",null,nuevoGasto);
                     database.close();
-                }
+                }*/
 
             }
         });

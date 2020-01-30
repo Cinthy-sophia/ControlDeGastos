@@ -13,18 +13,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cinthyasophia.controldegastos.Categoria;
 import com.cinthyasophia.controldegastos.R;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+public class AdapterCategoria extends FirestoreRecyclerAdapter<Categoria, AdapterCategoria.CategoriaViewHolder> implements View.OnClickListener{
 
-public class AdapterCategoria extends RecyclerView.Adapter<AdapterCategoria.CategoriaViewHolder> implements View.OnClickListener{
-    private ArrayList<Categoria> datos;
     private Context context;
     private View.OnClickListener listener;
 
-    public AdapterCategoria(ArrayList<Categoria> datos,Context context) {
-        this.datos = datos;
-        this.context = context;
+    public AdapterCategoria(FirestoreRecyclerOptions<Categoria> options, Context context) {
+        super(options);
+        this.context=context;
+
     }
 
     @NonNull
@@ -35,16 +35,15 @@ public class AdapterCategoria extends RecyclerView.Adapter<AdapterCategoria.Cate
         return new CategoriaViewHolder(item);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull CategoriaViewHolder holder, int position) {
-        Categoria categoria = datos.get(position);
-        holder.bindCategoria(categoria,context);
-
-    }
 
     @Override
-    public int getItemCount() {
-        return datos.size();
+    protected void onBindViewHolder(@NonNull CategoriaViewHolder categoriaViewHolder, int i, @NonNull Categoria categoria) {
+        categoriaViewHolder.tvNombreCategoria.setText(categoria.getNombre());
+        if (categoria.getFoto() == null){
+            categoria.setFoto("drawable/c_"+categoria.getNombre().toLowerCase());
+        }
+        int iResource= context.getResources().getIdentifier(categoria.getFoto(),null, context.getPackageName());
+        categoriaViewHolder.ivImagenCategoria.setImageResource(iResource);
     }
 
     public void setOnClickListener(View.OnClickListener listener){
@@ -71,11 +70,5 @@ public class AdapterCategoria extends RecyclerView.Adapter<AdapterCategoria.Cate
 
         }
 
-        public void bindCategoria(Categoria categoria, Context context) {
-            tvNombreCategoria.setText(categoria.getNombre());
-            int iResource= context.getResources().getIdentifier(categoria.getFoto(),null, context.getPackageName());
-            ivImagenCategoria.setImageResource(iResource);
-
-        }
     }
 }

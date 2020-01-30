@@ -8,7 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="81dp"
+        android:layout_height="63dp"
         android:background="#221E88E5">
 
         <TextView
@@ -26,10 +26,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.695" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/tvUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="51dp"
+        android:text="TextView" />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategorias"
+        android:id="@+id/rvListas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>
